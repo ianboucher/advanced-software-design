@@ -14,7 +14,7 @@ d := c + 1
 
 ```
 { x > 0 }
-y := (x/2) * 2
+y := (x / 2) * 2
 { ((x is odd) ->  y = x - 1) /\ ((x is even) -> y = x), x > 0 }
 z :=  x - y
 { ((x is odd) ->  z = 1) /\ ((x is even) -> z = 0), x > 0 }
