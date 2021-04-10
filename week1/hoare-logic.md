@@ -13,7 +13,7 @@ z = x + y;
 **In the example above, how could the code be changed without altering the postcondition?**
 
 - The assignments of x & y could be re-ordered.
-- The values of x & y could be changed to any values greater than 1
+- The values of x & y could be changed to any other values greater than 1
 - The expression could be changed to combine the values of x & y in a different fashion (e.g. x * y)
 
 **How does the "forgetting" of assertions correspond to a form of modularity?**
@@ -43,7 +43,7 @@ d := c + 1
 y := (x / 2) * 2
 # { ((x is odd) ->  y = x - 1) /\ ((x is even) -> y = x), x > 0 }
 z :=  x - y
-# { ((x is odd) ->  z = 1) /\ ((x is even) -> z = 0), x > 0 }
+# { ((x is odd) ->  z = 1) /\ ((x is even) -> z = 0) }
 a :=  z * 5 + (1 - z) * 12
 # { ((x is odd) ->  a = 5) /\ ((x is even) -> a = 12) }
 ```
@@ -70,11 +70,11 @@ x := x + 1;
 
 **In what sense does the code above contain a conditional?
 
-- If a > 0, the code will behave differently than if a <= 0, thus necessitating different postconditions predicated on the different values of a
+- If a > 0, the code will behave differently than if a <= 0, thus necessitating different postconditions predicated on the evaluation of a > 0.
 
 ### Exercise 5
 
-**How might the statements from the code in Exercise 4 be reordered to use the _consequence_ rule to "forget" information and thereby make the code simpler?**
+**How might the code in Exercise 4 be simplified by "forgetting" information through the reordering of statements and the use of the _consequence_ rule?**
 
 (NEED TO DOUBLE CHECK THAT I HAVE USED THE CONSEQUENCE RULE. COULD a BE FORGOTTEN? COULD EXPRESSIONS FOR d AND m BE SIMPLIFIED?)
 
@@ -87,9 +87,9 @@ x := x * 2;
 x := x + 1;
 # { x = 4b + 1 }
 d := (2 - (a + 1) / a) / 2;
-# { (a <= 0) -> d = 1) /\ (( a > 0) -> d = 0) }
+# { ((a <= 0) -> d = 1) /\ ((a > 0) -> d = 0), x = 4b + 1 }
 m := d * 2 + (1 - d) * 3;
-# { (a <= 0) -> m = 2) /\ ((a > 0) -> m = 3) }
+# { ((a <= 0) -> m = 2) /\ ((a > 0) -> m = 3), x = 4b + 1 }
 x := m * x;
 # { ((a <= 0) -> x = 8b + 1) /\ ((a > 0) -> x = 12b + 1) }
 ```
