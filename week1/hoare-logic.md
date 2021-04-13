@@ -122,15 +122,14 @@ NB: I have really struggled to see how to apply the consequence rule to the abov
 
 **Prove this sequential search procedure is correct by choosing a proper loop invariant:**
 
-```
+```shell
 # { true }
 i := 0;
-# { loop invariant goes here?? }
-#attempt { i <= n /\ i < arr.length /\ arr[i] != val }
+# { i <= n /\ i < arr.length }
 while arr[i] != val &&  i < n do
-  # { what the hell should go here }
+  # { arr[1] != val, i < n, i < arr.length }
   i := i + 1;
-  # { }
+  # { arr[i] != val \/ arr[i] == n, i <= n, i < arr.length }
 end
 # { arr[i] == val || forall j, (j >= 0 && j < n) -> arr[j] != val) }
 ```
