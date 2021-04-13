@@ -116,7 +116,7 @@ m := d * 2 + (1 - d) * 3;
 # { ((a <= 0) -> x = 8b + 1) /\ ((a > 0) -> x = 12b + 1) }
 ```
 
-NB: I have really struggled to see how to apply the consequence rule to the above code, given the constraint that the overall postcondition must remain unchanged. I would really appreciate a detailed explanation.
+NB: As is evident from the above, I have really struggled to see how to apply the consequence rule to the above code in a useful fashion, given the constraint that the overall postcondition must remain unchanged. I would really appreciate a detailed explanation of the solution.
 
 ### Exercise 6:
 
