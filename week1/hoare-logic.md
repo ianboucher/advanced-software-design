@@ -117,3 +117,20 @@ m := d * 2 + (1 - d) * 3;
 ```
 
 NB: I have really struggled to see how to apply the consequence rule to the above code, given the constraint that the overall postcondition must remain unchanged. I would really appreciate a detailed explanation.
+
+### Exercise 6:
+
+**Prove this sequential search procedure is correct by choosing a proper loop invariant:**
+
+```
+# { true }
+i := 0;
+# { loop invariant goes here?? }
+#attempt { i <= n /\ i < arr.length /\ arr[i] != val }
+while arr[i] != val &&  i < n do
+  # { what the hell should go here }
+  i := i + 1;
+  # { }
+end
+# { arr[i] == val || forall j, (j >= 0 && j < n) -> arr[j] != val) }
+```
