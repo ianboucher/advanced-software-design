@@ -4,7 +4,7 @@ _Give another example of a defect of modular reasoning ("level 3") which does no
 
 The following is an example of an error in modular reasoning that does not presently cause an error in the code:
 
-```
+```typescript
 function charFreqs(str: string): { val: number } {
   // return map of ascii code to char count
 }
@@ -15,7 +15,7 @@ function mostCommonChar(charFreqs: { val: number }: string {
 }    
 ```
 
-The above would work from a runtime/code perspective for all values of str provided that the encoding in charFreqs used ASCII. There is no strong guarantee of this and if it were to change, `mostCommonChar` would be incorrect.
+The above would work from a runtime/code perspective for all values of str provided that the encoding in `charFreqs` used ASCII. There is no strong guarantee of this and if it were to change, `mostCommonChar` would be incorrect.
 
 <br/>
 
@@ -23,7 +23,7 @@ The above would work from a runtime/code perspective for all values of str provi
 
 _Give another example of when two different (or partially different) design intentions result in the same code._
 
-```
+```typescript
 function decrease(val: number): number {
     return val -= 1;
 }
