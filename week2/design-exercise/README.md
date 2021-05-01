@@ -47,7 +47,7 @@ Given that `toggleComplete()` is in the original interface, I am forced to make 
 #### Reflection:
 After consideration of allowing for users creating their own statuses, rather than restricting them to a predifined list, I decided to abandon the idea since I lost too much time on figuring out how to retain some type-safety and adhere to the representable/valid principle. Some of this pain was caused by the initial decision to represent done/not-done as a boolean and providing a method called "toggleComplete".
 
-In hindsight, I can see that forcing the user to provide an `ownerId` to the `TaskService.getAll()` method as this assumes that the user will only ever want to get tasks that belong to a single list.
+In hindsight, I can see that forcing the user to provide an `ownerId` to the `TaskService.getAll()` method was a poor choice as this assumes that the user will only ever want to get tasks that belong to a single list.
 
 ### Version 3
 
