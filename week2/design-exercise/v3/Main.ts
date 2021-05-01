@@ -1,18 +1,26 @@
-import { TaskListService } from "./TaskList";
-import { ITask, TaskService, Task, Status } from "./Task";
 import { Dao, Filter, Sort } from "./Dao";
-import { TaskList } from "./TaskList";
+import { ITask, ITaskPublic, Status, Task } from "./Task";
+import { ITaskListPublic, TaskList } from "./TaskList";
+import { TaskListService } from "./TaskListService";
+import { TaskService } from "./TaskService";
+import { Friend, IFriend, IListUser, User } from "./User";
+import { FriendService, UserService } from "./UserService";
 
 (() => {
+    const friendService = new FriendService(new Dao<Friend>())
     const taskService = new TaskService(new Dao<Task>());
     const listService = new TaskListService(new Dao<TaskList>(), taskService);
-    const taskList = listService.create("My First Task List");
+    const userService = new UserService(new Dao<User>(), { listService, friendService });
+    
+    const me = userService.create("Ian Boucher");
+    const myTaskList = listService.create("My First Task List");
+    me.addList(myTaskList);
 
-    taskList.addTask("My First Task");
-    taskList.addTask("My Second Task");
-    taskList.addTask("My Third Task");
+    myTaskList.addTask("My First Task");
+    myTaskList.addTask("My Second Task");
+    myTaskList.addTask("My Third Task");
 
-    let tasks: ITask[] = taskList.getTasks();
+    let tasks: ITask[] = myTaskList.getTasks();
     
     tasks[0].isComplete();
     tasks[0].toggleComplete();
@@ -22,9 +30,22 @@ import { TaskList } from "./TaskList";
     taskService.save(tasks[1]);
 
     const isCompleteFilter: Filter = { field: "status", comparator: (val: Status) => val === Status.COMPLETE }
-    let completeTasks: ITask[] = taskList.getTasks({ filter: isCompleteFilter });
-    taskList.removeTask(completeTasks[0]);
+    let completeTasks: ITask[] = myTaskList.getTasks({ filter: isCompleteFilter });
+    myTaskList.removeTask(completeTasks[0]);
 
     const sortAsc: Sort = { field: "dueDate", comparator: (a: number | null, b: number | null) => b - a};
-    let sortedTasks = taskList.getTasks({ sort: sortAsc });
+    let sortedTasks = myTaskList.getTasks({ sort: sortAsc });
+
+    const alice: IListUser = userService.create("Alice");
+    const aliceTaskList: TaskList = listService.create("Alice's Task List");
+    listService.save(aliceTaskList);
+    alice.addList(aliceTaskList);
+    userService.save(alice);
+
+    me.addFriend(alice);
+
+    const myFriendAlice: IFriend = me.getFriends().filter(f => f.name === "Alice")[0];
+    const aliceList: ITaskListPublic = myFriendAlice.getLists()[0];
+    const aliceTasks: ITaskPublic[] = aliceList.getTasks(); 
+    aliceTasks[0].getStatus();
 })()

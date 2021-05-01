@@ -1,5 +1,23 @@
-import { Filter, IDao, Query } from "./Dao";
-import { ITaskService, ITask } from "./Task"
+import { Filter, Query } from "./Dao";
+import { IServiceReadonly } from "./Service";
+import { ITask, ITaskPublic, ITaskReadonly, Visibility } from "./Task"
+import { ITaskService } from "./TaskService";
+
+export interface ITaskListReadonly<T> {
+    id: string;
+    ownerId?: string;
+    name: string;
+    getTasks(): T[];
+}
+
+export interface ITaskListPublic extends ITaskListReadonly<ITaskPublic> {
+    getTasks(): ITaskPublic[]
+}
+
+export interface ITaskList extends ITaskListReadonly<ITask> {
+    addTask(name: string): void;
+    removeTask(task: ITask): void;
+}
 
 type TaskListProps = {
     id: string;
@@ -7,23 +25,28 @@ type TaskListProps = {
     name: string;
 }
 
-export interface ITaskList<T> extends TaskListProps {
-    getTasks(): T[];
-    addTask(name: string): void;
-    removeTask(task: T): void;
+export abstract class TaskListReadonly implements ITaskListReadonly<ITask | ITaskReadonly> {
+    public id: string;
+    public ownerId?: string;
+    public name: string;
+
+    constructor(props: TaskListProps, taskService: ITaskService | IServiceReadonly<ITaskPublic>) {
+        this.id = props.id;
+        this.ownerId = props.ownerId;
+        this.name = props.name;
+    }
+    
+    public getTasks(): ITask[] | ITaskReadonly[] {
+        return [];
+    };
 }
 
-export class TaskList implements ITaskList<ITask> {
-    public readonly id: string;
-    public ownerId: string;
-    public name: string;
+export class TaskList extends TaskListReadonly implements ITaskList {
     private tasks: ITask[];
     private taskService: ITaskService
 
     constructor(props: TaskListProps, taskService: ITaskService) {
-        this.id = props.id;
-        this.ownerId = props.ownerId;
-        this.name = props.name;
+        super(props, taskService)
         this.tasks = props.id ? taskService.getAll(props.id) : [];
         this.taskService = taskService;
     }
@@ -43,45 +66,19 @@ export class TaskList implements ITaskList<ITask> {
     }
 }
 
-export interface ITaskListService<T> {
-    getAll(ownerId: string): T[]
-    get(id: string): T
-    create(name: string, ownerId: string): T
-    save(taskList: T): void
-}
+export class TaskListPublic extends TaskListReadonly implements ITaskListPublic {
+    private tasks: ITaskPublic[];
+    private taskService: IServiceReadonly<ITaskPublic>
 
-export class TaskListService implements ITaskListService<TaskList> {
-    private dao: IDao<TaskList>;
-    private taskService: ITaskService;
-
-    constructor(dao: IDao<TaskList>, taskService: ITaskService) {
-        this.dao = dao;
+    constructor(props: TaskListProps, taskService: IServiceReadonly<ITaskPublic>) {
+        super(props, taskService);
+        this.tasks = props.id ? taskService.getAll(props.id) : [];
         this.taskService = taskService;
     }
 
-    public getAll(ownerId: string): TaskList[] {
-        const filter: Filter = { field: ownerId, comparator: (a: string) => a === ownerId }; 
-
-        return this.dao.getAll({filter});
+    public getTasks(query?: Query): ITaskPublic[] {
+        const fn = (val: Visibility) => val === Visibility.PUBLIC;
+        const filter: Filter = { field: "visibility", comparator: fn }
+        return this.taskService.getAll(this.id, query)
     }
-
-    public get(id: string): TaskList {
-        return this.dao.get(id)
-    }
-
-    public create(name: string, ownerId?: string): TaskList {
-        const listProps = {
-            id: this.dao.nextId(),
-            name: name,
-            ownerId: ownerId ?? "",
-        };
-        const list = new TaskList(listProps, this.taskService);
-        this.dao.save(list);
-        return list; 
-    }
-
-    public save(taskList: TaskList): void {
-        this.dao.save(taskList);
-    }
-
 }

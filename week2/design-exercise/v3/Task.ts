@@ -8,16 +8,30 @@ export enum Status {
     COMPLETE = 'Complete'
 }
 
-export interface ITask { 
+export enum Visibility {
+    PUBLIC = 'Public',
+    PRIVATE = "Private",
+}
+
+export interface ITaskReadonly { 
     id: string;
     ownerId: string;
     name: string;
     isComplete(): boolean;
+    getStatus?(): Status;
+    getDueDate?(): Date;
+    getVisibility?(): Visibility
+}
+
+export interface ITask extends ITaskReadonly { 
     toggleComplete(): void;
-    getStatus?(): Status; 
     setStatus?(status: Status): void;
-    getDueDate?(): Date; 
     setDueDate?(date: Date): void;
+    setVisibility?(visibility: Visibility): void; 
+}
+
+export interface ITaskPublic extends ITaskReadonly {
+    getVisibility(): Visibility.PUBLIC;
 }
 
 export type TaskProps = {
@@ -26,23 +40,49 @@ export type TaskProps = {
     name: string;
     status?: Status;
     dueDate?: number;
+    visibility?: Visibility
 }
 
-export class Task implements ITask {
+export class ReadonlyTask implements ITaskReadonly {
     public readonly id: string;
     public ownerId: string;
     public name: string;
-    private status: Status;
-    private prevStatus: Status;
-    private dueDate: Date | null;
+    protected status: Status;
+    protected dueDate: Date | null;
+    protected visibility: Visibility;
     
     constructor(props: TaskProps) {
         this.id = props.id;
         this.ownerId = props.ownerId;
         this.name = props.name;
         this.status = props.status ?? Status.NEW;
-        this.prevStatus = props.status;
         this.dueDate = props.dueDate ? new Date(props.dueDate) : null;
+        this.visibility = props.visibility ?? Visibility.PUBLIC;
+    }
+
+    public isComplete(): boolean {
+        return
+    }
+
+    public getStatus(): Status {
+        return;
+    }
+
+    public getDueDate(): Date | null {
+        return;
+    }
+
+    public getVisibility(): Visibility {
+        return;
+    }
+}
+
+export class Task extends ReadonlyTask implements ITask {
+    private prevStatus: Status;
+    
+    constructor(props: TaskProps) {
+        super(props);
+        this.prevStatus = props.status;
     }
 
     public isComplete(): boolean {
@@ -60,55 +100,8 @@ export class Task implements ITask {
         }
     }
 
-    public getDueDate() {
-        return this.dueDate;
-    }
-
     // status getter and setter
     // dueDate gettter and setter
-}
-
-export interface ITaskService {
-    getAll(ownerId: string, query?: Query): ITask[];
-    get(id: string): ITask;
-    createTask(ownerId: string, name: string): ITask;
-    save(task: ITask): void;
-    delete(id: string): void;
-}
-
-export class TaskService implements ITaskService {
-    private dao: IDao<ITask>;
-
-    constructor(dao: IDao<ITask>) {
-        this.dao = dao;
-    }
-
-    public getAll(ownerId: string): ITask[] {
-        const filter: Filter = { field: ownerId, comparator: (a: string) => a === ownerId }; 
-        return this.dao.getAll({ filter })
-    }
-
-    public get(id: string): ITask {
-        return this.dao.get(id);
-    }
-
-    public createTask(ownerId: string, name: string) {
-        const task = new Task({
-            id: this.dao.nextId(),
-            ownerId,
-            name,
-        });
-        this.dao.save(task);
-        return task;
-    }
-
-    public save(task: ITask) {
-        // perform validion
-        this.dao.save(task);
-    }
-
-    public delete(id: string) {
-        this.dao.delete(id);
-    }
+    // visibility getter and setter
 }
 

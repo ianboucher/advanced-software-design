@@ -49,3 +49,22 @@ After consideration of allowing for users creating their own statuses, rather th
 
 In hindsight, I can see that forcing the user to provide an `ownerId` to the `TaskService.getAll()` method as this assumes that the user will only ever want to get tasks that belong to a single list.
 
+### Version 3
+
+Support a notion of users, where each user has a list of friends and a single todo list. Extend the design to support an "accountability" feature, where users can allow friends to view their todo list and progress. Ensure users can mark some todo items as "private." If a todo item is "private," then no-one may view it or be given any information that it exists.
+
+Make sure to explain how the user interface for viewing a friend's to-do list would work, and in particular how it may reuse code from your normal user interface.
+
+#### Notes
+
+Since a User's task list and private tasks must be accessible via a User class (in order for a user to view their own private tasks), one solution is for the entity returned when accessing a user's friends to be something other than another User.
+
+In addition, once a "Friend" had been obtained, I assumed that it would not be possible to add or remove tasks from their list, or to edit their tasks in any way. The Friend object should return readonly versions of TaskLists and Tasks.
+
+In splitting the interfaces, it should ideally not be possible to return a User instead of a Friend, or a "private" Task instead of a "public" Task.
+
+#### Reflection
+
+I am starting to feel the pain of some of the early versions of the interfaces, as I attempt to use them for more entities. I strongly dislike that a `User` must be newed-up with two service classes, which in turn forces me to pass these services into the `UserService`. I already feels like an overly complex variety of interfaces and classes for a simple application.
+
+Some code re-use was achieved through the use of abstract classes and sub-classing in order to extract the readonly/public versions of the TaskList and Task entities.
