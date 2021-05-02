@@ -43,4 +43,11 @@ export class TaskService implements ITaskService {
     public delete(id: string) {
         this.dao.delete(id);
     }
+
+    // if this were to be a common operation, I would consider caching a map/maps of task-prop vs freq
+    // and including the details of the interaction with the cache in the DAO layer
+    public countMatching(query: { field: string, value: unknown }): number {
+        const filter: Filter = { field: query.field, comparator: (val: unknown) => val === query.value };
+        return this.dao.getAll({ filter }).length; // could subtract 1 to exclude user's own task
+    }
 }

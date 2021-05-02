@@ -8,10 +8,11 @@ export interface ITaskListReadonly<T> {
     ownerId?: string;
     name: string;
     getTasks(): T[];
+    getTotalTaskCount(): number;
 }
 
 export interface ITaskListPublic extends ITaskListReadonly<ITaskPublic> {
-    getTasks(): ITaskPublic[]
+    getTasks(): ITaskPublic[];
 }
 
 export interface ITaskList extends ITaskListReadonly<ITask> {
@@ -36,49 +37,67 @@ export abstract class TaskListReadonly implements ITaskListReadonly<ITask | ITas
         this.name = props.name;
     }
     
-    public getTasks(): ITask[] | ITaskReadonly[] {
-        return [];
-    };
+    public abstract getTasks(): ITask[] | ITaskReadonly[];
+    public abstract getTotalTaskCount(): number
 }
 
 export class TaskList extends TaskListReadonly implements ITaskList {
     private tasks: ITask[];
+    private totalCount: number;
     private taskService: ITaskService
 
     constructor(props: TaskListProps, taskService: ITaskService) {
         super(props, taskService)
         this.tasks = props.id ? taskService.getAll(props.id) : [];
+        this.totalCount = this.tasks.length;
         this.taskService = taskService;
     }
 
     public getTasks(query?: Query): ITask[] {
-        return this.taskService.getAll(this.id, query)
+        // if query === prev-query return this.tasks;
+        this.tasks = this.taskService.getAll(this.id, query)
+        return this.tasks
+    }
+
+    public getTotalTaskCount(): number {
+        return this.totalCount;
     }
 
     public addTask(name: string): void {
         const task = this.taskService.createTask(this.id, name);
+        this.totalCount++;
         this.tasks.push(task);
     }
 
     public removeTask(task: ITask): void {
-        this.tasks = this.tasks.filter(t => t.id !== task.id)
+        this.tasks = this.tasks.filter(t => t.id !== task.id);
+        this.totalCount--;
         this.taskService.delete(task.id);
     }
 }
 
 export class TaskListPublic extends TaskListReadonly implements ITaskListPublic {
+    private filterFn = (val: Visibility) => val === Visibility.PUBLIC;
+    private PUBLIC_FILTER: Filter = { field: "visibility", comparator: this.filterFn };
     private tasks: ITaskPublic[];
+    private totalCount: number;
     private taskService: IServiceReadonly<ITaskPublic>
 
     constructor(props: TaskListProps, taskService: IServiceReadonly<ITaskPublic>) {
         super(props, taskService);
-        this.tasks = props.id ? taskService.getAll(props.id) : [];
+        this.tasks = props.id ? taskService.getAll(props.id, {filter: this.PUBLIC_FILTER}) : [];
+        this.totalCount = this.tasks.length;
         this.taskService = taskService;
     }
 
     public getTasks(query?: Query): ITaskPublic[] {
-        const fn = (val: Visibility) => val === Visibility.PUBLIC;
-        const filter: Filter = { field: "visibility", comparator: fn }
-        return this.taskService.getAll(this.id, query)
+        // if query === prev-query return this.tasks;
+        query.filter = this.PUBLIC_FILTER
+        this.tasks = this.taskService.getAll(this.id, query);
+        return this.tasks;
+    }
+
+    public getTotalTaskCount(): number {
+        return this.totalCount;
     }
 }

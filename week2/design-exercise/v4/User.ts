@@ -62,7 +62,9 @@ export class User implements IListUser {
     };
 
     public getLists(query?: Query): ITaskList[] {
-        return this.listService.getAll(this.id);
+        // if query === prev-query return this.lists;
+        this.lists = this.listService.getAll(this.id, query);
+        return this.lists;
     }
 
     public addFriend(user: IUser): void {
@@ -70,9 +72,9 @@ export class User implements IListUser {
     } 
 
     public getFriends(): IFriend[] {
-        const fn = (val: string) => this.friendIds.includes(val)
-        const filter: Filter = { field: "id", comparator: fn }
-        return this.friendService.getAll(null, { filter })
+        const fn = (val: string) => this.friendIds.includes(val); // incredibly inefficient;
+        const filter: Filter = { field: "id", comparator: fn };
+        return this.friendService.getAll(null, { filter });
     }
 }
 
