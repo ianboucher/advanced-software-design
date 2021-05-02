@@ -67,18 +67,20 @@ export class TaskList extends TaskListReadonly implements ITaskList {
 }
 
 export class TaskListPublic extends TaskListReadonly implements ITaskListPublic {
+    private filterFn = (val: Visibility) => val === Visibility.PUBLIC;
+    private PUBLIC_FILTER: Filter = { field: "visibility", comparator: this.filterFn };
     private tasks: ITaskPublic[];
     private taskService: IServiceReadonly<ITaskPublic>
 
     constructor(props: TaskListProps, taskService: IServiceReadonly<ITaskPublic>) {
         super(props, taskService);
-        this.tasks = props.id ? taskService.getAll(props.id) : [];
+        this.tasks = props.id ? taskService.getAll(props.id, {filter: this.PUBLIC_FILTER}) : [];
         this.taskService = taskService;
     }
 
     public getTasks(query?: Query): ITaskPublic[] {
-        const fn = (val: Visibility) => val === Visibility.PUBLIC;
-        const filter: Filter = { field: "visibility", comparator: fn }
-        return this.taskService.getAll(this.id, query)
+        query.filter = this.PUBLIC_FILTER
+        this.tasks = this.taskService.getAll(this.id, query);
+        return this.tasks;
     }
 }

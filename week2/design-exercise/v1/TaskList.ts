@@ -29,7 +29,12 @@ export class TaskList implements ITaskList<ITask> {
     }
 
     public getTasks(): ITask[] {
-        return this.taskService.getAll(this.id)
+        this.tasks = this.taskService.getAll(this.id);
+        return this.tasks;
+    }
+
+    public getTaskCount(): number {
+        return this.tasks.length;
     }
 
     public addTask(name: string): void {

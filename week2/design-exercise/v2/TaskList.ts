@@ -29,7 +29,8 @@ export class TaskList implements ITaskList<ITask> {
     }
 
     public getTasks(query?: Query): ITask[] {
-        return this.taskService.getAll(this.id, query)
+        this.tasks = this.taskService.getAll(this.id, query);
+        return this.tasks;
     }
 
     public addTask(name: string): void {
