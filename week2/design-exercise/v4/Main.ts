@@ -49,10 +49,7 @@ import { FriendService, UserService } from "./UserService";
     const aliceTasks: ITaskPublic[] = aliceList.getTasks(); 
     aliceTasks[0].getStatus();
 
-    const myTasks = me.getLists()[0].getTasks();
-    const myTaskNames = myTasks.map(task => task.name);
-    // This would be shockingly inefficient!!!!
-    taskService.getAll("", { filter: { field: "name", comparator: (val: string) => myTaskNames.includes(val)}})
-
-    const count = taskService.countMatching({ field: "name", value: "My First Task" });
+    const countMatchedByName = taskService.countMatching({ field: "name", value: "My First Task" });
+    const myTaskCount = myTaskList.getTotalTaskCount(); // should return count of all tasks in list, regardless of currently applied filter
+    const aliceTaskCount = aliceList.getTotalTaskCount(); // should count only Tasks not marked private;
 })()
