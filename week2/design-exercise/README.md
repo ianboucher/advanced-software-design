@@ -68,3 +68,22 @@ In splitting the interfaces, it should ideally not be possible to return a User 
 I am starting to feel the pain of some of the early versions of the interfaces, as I attempt to use them for more entities. I strongly dislike that a `User` must be newed-up with two service classes, which in turn forces me to pass these services into the `UserService`. I already feels like an overly complex variety of interfaces and classes for a simple application.
 
 Some code re-use was achieved through the use of abstract classes and sub-classing in order to extract the readonly/public versions of the TaskList and Task entities.
+
+### Version 4
+
+Extend the design to support one of the following features:
+
+- Ability to look up, for all users, how many have a todo item with the same name as one of yours. 
+- Also, explain how to extend your user interface to display the total number of todo items in the list currently being viewed. This feature is simple, but there are some easy ways to get it wrong.
+
+#### Notes
+
+Assuming that the ability to look up a count of tasks with "the same name as one of yours" indicates that the user would the supply the name to match on, rather than generating a count of tasks that match the name of any in your list. The latter would be possible with a cached task-name vs frequency map.
+
+For the total number of tasks in the currently view list, I am assuming this would disregard any currently applied filters, e.g. if filtering by a status of "in-progress", the count would still show all tasks in the list. For the task-lists belonging to "Friends", the count should exclude any that have been marked private.
+
+#### Reflection
+
+The inadvertent/ill-considered leaking of the Query/Filter abstraction from the DAO layer, all the way up to the client-code is extemely unwise and would undoubtably be hard to change and lead to many problems. Additionally, it would have been useful to have enabled client code to provide several filters at once.
+
+The example implementations are littered with dreadful mistakes - hopefully this doesn't detract too much from the design (good or bad) as my assumption was that the focus should be on the interfaces.

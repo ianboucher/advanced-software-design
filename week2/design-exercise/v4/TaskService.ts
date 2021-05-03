@@ -7,6 +7,7 @@ export interface ITaskService {
     createTask(ownerId: string, name: string): ITask;
     save(task: ITask): void;
     delete(id: string): void;
+    countMatching?(query: { field: string, value: unknown }): number
 }
 
 export class TaskService implements ITaskService {

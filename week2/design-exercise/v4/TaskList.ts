@@ -8,7 +8,7 @@ export interface ITaskListReadonly<T> {
     ownerId?: string;
     name: string;
     getTasks(): T[];
-    getTotalTaskCount(): number;
+    getTotalTaskCount?(): number;
 }
 
 export interface ITaskListPublic extends ITaskListReadonly<ITaskPublic> {
@@ -38,7 +38,6 @@ export abstract class TaskListReadonly implements ITaskListReadonly<ITask | ITas
     }
     
     public abstract getTasks(): ITask[] | ITaskReadonly[];
-    public abstract getTotalTaskCount(): number
 }
 
 export class TaskList extends TaskListReadonly implements ITaskList {
