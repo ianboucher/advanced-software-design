@@ -1,8 +1,5 @@
 ## Exercise 1
 
-
-# TODO: TIDY UP CODE SAMPLES (PARTICULALY THOSE THAT DON'T CARRY PREVEIOUS CHANGES). ALSO RECONSIDER Q1
-
 A store has a number of `Discounts`. Each discount can examine a customer and an item, adn checks whether the discount applies. Discounts can be _either_ for a certain type of customer (e.g. student & employee discounts), for a certain item, or for everything on certain days.
 
 ```java
@@ -36,13 +33,11 @@ public class Discount {
 }
 ```
 
-1. The comparison to string constants is worrisome — a typo in this or other codecould be hard to detect, and what if the “student discount” is renamed an “academic discount?” Refactor the code so that typos are a non-issue:
+1. _The comparison to string constants is worrisome — a typo in this or other codecould be hard to detect, and what if the “student discount” is renamed an “academic discount?” Refactor the code so that typos are a non-issue:_
 
 # (Not sure if the above is a question in its own right - for now assuming it's a summary of the exercise and the following are the specific questions to be addressed)
 
-**NB:** Working under the assumption that I can only make changes to the `Discount` class and its API, i.e. I am not able to make changes to the `Customer` or `Item` classes.  
-
-2. `customerTypeDiscount` and `dayOfWeekDiscount` can contain arbitrary strings, even though they can only take a restricted set of values. What happens if the calling code passes in “Week-end” as a day-of-week discount, or if the programmer adds a “veteran discount” but forgets toupdate this code? Refactor the day-of-week and customer-type discounts so that they can only contain valid days of week or customer types.
+2. _`customerTypeDiscount` and `dayOfWeekDiscount` can contain arbitrary strings, even though they can only take a restricted set of values. What happens if the calling code passes in “Week-end” as a day-of-week discount, or if the programmer adds a “veteran discount” but forgets toupdate this code? Refactor the day-of-week and customer-type discounts so that they can only contain valid days of week or customer types._
 
 Using the existing enum provided by `DateUtils` and a new enum for `CustomerType`, the range of permissible values for the `customerTypeDiscount` and `dayOfWeekDiscount` can be restricted to known values only
 
@@ -100,11 +95,10 @@ public class Discount {
 
         ...
     }
-
     ...
 ```
 
-3. This API allows you to apply a discount to an item that shouldn't get it. How would you modify the API to prevent that?
+3. _This API allows you to apply a discount to an item that shouldn't get it. How would you modify the API to prevent that?_
 
 The following solution would change the `Discount` class to be initialised with an instance of `Item` to be discounted, rather than accept a string for its name. Since there's nothing intrinsic to an `Item` that knows whether it should or shouldn't receive a discount, this would still not prevent new `Discounts` from being created with any existing `Item`.
 
@@ -152,9 +146,9 @@ public class Discount {
 }
 ```
 
-4. It's intended that a discount can only be one of the three types. How would you redesign this code so that `doesDiscountApply` contains no conditionals?
+4. _It's intended that a discount can only be one of the three types. How would you redesign this code so that `doesDiscountApply` contains no conditionals?_
 
-My instict here split the `Discount` class into three subtypes and to use the factory-pattern to instantiate `Discounts` of the desired type according to a `DiscountType` enum. Whilst this _should_ make the application of discounts more robust, the factory pattern only extracts the the branching logic to a higher abstraction (to the factory itself), so I'm not sure it makes the code simpler.
+My instinct here split the `Discount` class into three subtypes and to use the factory-pattern to instantiate `Discounts` of the desired type according to a `DiscountType` enum. Whilst this _should_ make the application of discounts more robust, the factory pattern only extracts the the branching logic to a higher abstraction (to the factory itself), so I'm not sure it makes the code simpler.
 
 ```java
 
@@ -194,37 +188,46 @@ public class DiscountFactory {
 }
 ```
 
-5. **Bonus:** With the current implementation, a day-of-week discount can’t be tested without waiting until that day.  How would you modify this program to make day-of-week discounts unit-testable?
+5. _With the current implementation, a day-of-week discount can’t be tested without waiting until that day.  How would you modify this program to make day-of-week discounts unit-testable?_
 
-# TODO: THIS^^
+It should be possible to use an interface matching the relevant part of `DateUtil` (or use the native interface if available) to type a parameter in the constructor
 
+```java
+public class DailyDiscount {
+    private DateUtility.DayOfWeek dayOfWeekDiscount;
+
+    public DailyDiscount(DateUtility dateUtil) {
+        this.dateUtil = dateUtil
+    }
+
+    public boolean doesDiscountApply(Customer c, Item item) {
+        return dateUtil.getDayOfWeek().equals(dayOfWeekDiscount);
+    }
+```
+
+This would allow enable a fake or mock date-utility to be passed-in for use during unit testing to return specified date values.
 
 ## Exercise 2
 
-In May 2010, Facebook was awash in privacy bugs. If you went to the “Report this profile” window, you could view someone’s hidden photos. The “Preview My Profile” button let you view another friend’s chats. The source of the problem was the reliance on code like this:
+_In May 2010, Facebook was awash in privacy bugs. If you went to the “Report this profile” window, you could view someone’s hidden photos. The “Preview My Profile” button let you view another friend’s chats. The source of the problem was the reliance on code like this:_
 
 ```python
-    def listPhotos(user, viewingUser):
-        for photo is user.getPhotos(db):
-            if photo.canView(viewingUser):
-                displayPhoto(photo)
+def listPhotos(user, viewingUser):
+    for photo is user.getPhotos(db):
+        if photo.canView(viewingUser):
+            displayPhoto(photo)
 ```
 
-The Facebook codebase of 2010 is roughly organized into layers. The website layer displays user information in webpages, and provides end-user functionality like the Like button. The middle layer organizes data and provides  operations on it, like finding a user’s top posts. The data layer organizes requests to the database. In the design above, all privacy checks happen in the web layer. How would you redesign the code so that all privacy checks happen at the data layer?
+_The Facebook codebase of 2010 is roughly organized into layers. The website layer displays user information in webpages, and provides end-user functionality like the Like button. The middle layer organizes data and provides  operations on it, like finding a user’s top posts. The data layer organizes requests to the database. In the design above, all privacy checks happen in the web layer. How would you redesign the code so that all privacy checks happen at the data layer?_
 
-- The obvious solution is to perform the `photo.canView` operation at the data layer, when calling `user.getPhotos(viewingUser)`, such that it is entirely tranparent to the caller.
-
-Using something similar to a DAO or Repository pattern:
+- A seemingly obvious solution would be to perform the `photo.canView` operation at the data layer, when calling `user.getPhotos(viewingUser)`, such that it is entirely transparent to the caller. This could be implmented using something similar to a DAO or Repository pattern to abstract away the access checks from the caller:
 
 ```python
-# Repository
 class UserPhotosRepository(BaseRepository):
     __init__(self):
-        self.db = Db()
+        self.db = Db() # class containing lower-level db abstraction
 
     def getAll(viewer, owner):
         accessRights = viewer.getAccessRights(owner) or None # e.g PUBLIC_ONLY, FRIENDS_ONLY, ALL etc.
         self.db.get("user_photos", owner, accessRights)
-
-# Manager
 ```
